@@ -113,6 +113,14 @@ export async function collectContextParts(inputText, enabledOptions) {
         .join("\n\n")
         .trim() || "(the story just started)";
 
+    // The same history as chat-API messages, for the "Send as Roles" mode:
+    // user messages -> "user", character messages -> "assistant", narration/system -> "system".
+    const historyMessages = history.map(m => ({
+        role: m.is_system ? "system" : (m.is_user ? "user" : "assistant"),
+        name: m.name || (m.is_user ? userName : char?.name) || "Unknown",
+        mes: String(m.mes ?? ""),
+    }));
+
     // Persona (gated by the User Persona toggle)
     let persona = "";
     if (includePersona) {
@@ -152,6 +160,7 @@ export async function collectContextParts(inputText, enabledOptions) {
         worldinfo: worldInfo || "(none)",
         wiOutlets: wiOutlets || "(none)",
         imminentContext,
+        historyMessages,
         persona,
         scenario,
         charInfo,

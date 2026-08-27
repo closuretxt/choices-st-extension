@@ -12,6 +12,8 @@ export class ChoicesPopup {
         this._programmaticSet = false; // guards against our own textarea inserts triggering regen
         this._requestId = 0;
         this._requestFn = null; // provided by index.js
+        this._inFlight = false; // a suggestion request is running (even if the menu was closed mid-request)
+        this._inFlightToken = null; // which request the _inFlight flag belongs to
     }
 
     get settings() {
@@ -71,6 +73,11 @@ export class ChoicesPopup {
             if (typeof toastr !== "undefined") toastr.warning("Choices is disabled in the extension settings.", "Choices");
             return;
         }
+        // A suggestion request is still running: don't open mid-generation.
+        if (this._inFlight) {
+            if (typeof toastr !== "undefined") toastr.info("Still generating suggestions, try again in a moment.", "Choices");
+            return;
+        }
         this.isOpen = true;
         this._position();
         $("#choices_popup").stop(true).fadeIn(150);
@@ -100,6 +107,20 @@ export class ChoicesPopup {
 
     toggle() {
         this.isOpen ? this.close() : this.open();
+    }
+
+    // Called when the user sends a message: the draft is gone, so any cached
+    // suggestions are stale. Reset everything so the next press starts fresh.
+    resetForNewTurn() {
+        clearTimeout(this._regenTimer);
+        this._regenTimer = null;
+        this._requestId++; // invalidate any in-flight generation results
+        this._inFlight = false; // unblock the button for the new turn
+        this._inFlightToken = null;
+        this._lastGeneratedInput = null; // next open must regenerate
+        if (this.isOpen) this.close();
+        $("#choices_popup_list").empty();
+        logDebug("Choices: state reset for new turn (message sent).");
     }
 
     _position() {
@@ -149,6 +170,8 @@ export class ChoicesPopup {
         this.showLoading();
         const myId = ++this._requestId;
         this.isGenerating = true;
+        this._inFlight = true;
+        this._inFlightToken = myId;
         const useStreaming = this.settings.stream !== false;
         let streamed = false;
 
@@ -174,6 +197,9 @@ export class ChoicesPopup {
             })
             .finally(() => {
                 if (myId === this._requestId) this.isGenerating = false;
+                // Only the latest request owns the in-flight flag; superseded or
+                // invalidated ones must not release it (a newer one may hold it).
+                if (myId === this._inFlightToken) this._inFlight = false;
             });
     }
 
@@ -242,17 +268,14 @@ export class ChoicesPopup {
         return item;
     }
 
-    // Adds the suggestion to the input bar WITHOUT sending, and WITHOUT closing the menu.
+    // Replaces the ENTIRE input bar content with the suggestion, WITHOUT sending
+    // and WITHOUT closing the menu.
     applyOption(text) {
         const ta = $("#send_textarea");
-        const current = String(ta.val() ?? "");
-        const trimmed = current.trimEnd();
-        const needsSpace = trimmed.length > 0 && !/\s$/.test(trimmed);
-        const newValue = trimmed + (needsSpace ? " " : "") + text;
 
         // Programmatic insert: must not be mistaken for user typing (no instant regen loop)
         this._programmaticSet = true;
-        ta.val(newValue).trigger("input");
+        ta.val(text).trigger("input");
         this._programmaticSet = false;
         ta.trigger("focus");
 

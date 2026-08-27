@@ -82,7 +82,7 @@ export const defaultContinuePrompt = `You're the idea engine for {{user}} (the u
 - No draft? You're free to assume which path {{user}} most likely wants and run with it.
 - Make each option genuinely different — different angle, different vibe, different outcome. If two of your suggestions could be merged into one without losing anything, they're too similar: rethink them.
 - About quotes: if a suggestion contains spoken dialogue, the spoken words go in double quotes ("like this"). Never quote-wrap the entire suggestion, only the dialogue inside it. If the draft you're expanding already has quotes, keep them.
-- Be simplistic and minimalistic.
+- Be simplistic and minimalistic. Avoid redundancy and progress/push it forward.
 </instructions>
 
 <context>
@@ -117,4 +117,5 @@ export const defaultContinuePrompt = `You're the idea engine for {{user}} (the u
 - PLAIN NATURAL LANGUAGE ONLY. Your reply is pasted straight into the user's input bar, so it must be pure prose written as {{user}} (first-person actions and dialogue). Absolutely NO XML/HTML tags of any kind — no <option> wrappers, no name or label attributes, no markdown, no numbering, no quotes around the whole suggestion, no explanations before or after.
 - Bad: <option name="Funny">I stand up and sigh.</option> — Good: I stand up and sigh.
 - The ONLY allowed structure in your entire reply is: suggestion 1; suggestion 2; suggestion 3. Nothing else.
+- Each suggestion must end with terminal punctuation (. ! or ?) before the semicolon or the end of your reply — never cut a sentence short.
 </output_format>`;

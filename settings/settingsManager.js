@@ -11,6 +11,7 @@ export const defaultSettings = {
     wordLimit: 60, // Soft word limit injected in the prompt (guidance only, not enforced in code)
     regenDelay: 2000, // Idle time (ms) after typing stops before the open menu regenerates
     stream: true, // Stream the response and load options as they arrive
+    send_as_roles: false, // Send context sections as distinct system messages instead of one prompt block
     debug_mode: false,
     injectWorldInfo: true, // {{worldinfo}} - active World Info entries
     injectWIOutlets: true, // {{wi-outlets}} - WI outlet entries
@@ -65,7 +66,7 @@ export function renderOptionsEditor() {
 
 // LISTENERS
 export function initSettingsListeners() {
-    $("#choices_enabled, #choices_legacy_api, #choices_debug_mode, #choices_connection, #choices_stream, #choices_inject_world_info, #choices_inject_wi_outlets, #choices_include_char_info, #choices_include_scenario, #choices_include_persona").on("change", saveSettings);
+    $("#choices_enabled, #choices_legacy_api, #choices_debug_mode, #choices_connection, #choices_stream, #choices_send_as_roles, #choices_inject_world_info, #choices_inject_wi_outlets, #choices_include_char_info, #choices_include_scenario, #choices_include_persona").on("change", saveSettings);
     $("#choices_context_length, #choices_word_limit, #choices_regen_delay, #choices_continue_prompt, #choices_input_prompt").on("input change", saveSettings);
 
     $("#choices_restore_input_prompt").on("click", () => {
@@ -142,6 +143,7 @@ export async function loadSettings() {
     $("#choices_legacy_api").prop("checked", s.legacy_api);
     $("#choices_debug_mode").prop("checked", s.debug_mode);
     $("#choices_stream").prop("checked", s.stream);
+    $("#choices_send_as_roles").prop("checked", s.send_as_roles);
     $("#choices_inject_world_info").prop("checked", s.injectWorldInfo);
     $("#choices_inject_wi_outlets").prop("checked", s.injectWIOutlets);
     $("#choices_include_char_info").prop("checked", s.includeCharInfo);
@@ -164,6 +166,7 @@ export function saveSettings() {
     s.legacy_api = $("#choices_legacy_api").prop("checked");
     s.debug_mode = $("#choices_debug_mode").prop("checked");
     s.stream = $("#choices_stream").prop("checked");
+    s.send_as_roles = $("#choices_send_as_roles").prop("checked");
     s.injectWorldInfo = $("#choices_inject_world_info").prop("checked");
     s.injectWIOutlets = $("#choices_inject_wi_outlets").prop("checked");
     s.includeCharInfo = $("#choices_include_char_info").prop("checked");

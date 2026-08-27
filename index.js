@@ -75,8 +75,8 @@ jQuery(async () => {
 
     initSlashCommands();
 
-    // If the menu is open and the story moves, refresh suggestions after the idle delay.
-    // Generation never happens while the menu is closed.
+    // If the menu is open and the story moves (AI replied), refresh suggestions
+    // after the idle delay. Generation never happens while the menu is closed.
     if (eventSource && event_types) {
         const onStoryChange = () => {
             if (choicesPopup.isOpen) {
@@ -84,7 +84,9 @@ jQuery(async () => {
             }
         };
         eventSource.on(event_types.MESSAGE_RECEIVED, onStoryChange);
-        eventSource.on(event_types.MESSAGE_SENT, onStoryChange);
+        // When the user SENDS a message, the draft is gone and the scene moved:
+        // fully reset so the next button press loads a fresh set of responses.
+        eventSource.on(event_types.MESSAGE_SENT, () => choicesPopup.resetForNewTurn());
     }
 
     logDebug("Choices initialized.");

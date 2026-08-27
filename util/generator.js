@@ -40,13 +40,8 @@ export async function generateChoices(inputText = null, onChunk = null) {
     const inputPromptTemplate = settings.inputPrompt || defaultInputPrompt;
     const userPrompt = applyChoicesMacros(inputPromptTemplate, parts);
 
-    const messages = [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-    ];
-
-    logDebug("Choices system prompt:", systemPrompt);
-    logDebug("Choices user prompt:", userPrompt);
+    const messages = buildMessages(settings, systemPrompt, userPrompt, parts);
+    logDebug("Choices messages:", messages);
 
     let result;
     try {
@@ -75,6 +70,62 @@ export async function generateChoices(inputText = null, onChunk = null) {
     const parsed = parseChoicesResponse(result);
     logDebug("Choices parsed suggestions:", parsed);
     return parsed;
+}
+
+// Builds the request's message list.
+// "Send as Roles" OFF: one system message (the whole continue prompt) + one user message.
+// "Send as Roles" ON:  the <context> block is lifted out of the system prompt and each
+//                      section inside it is sent as its OWN system message, so the API
+//                      sees the scene context as distinct role messages. The draft
+//                      remains the user message. Falls back to the normal 2-message
+//                      layout when the prompt has no <context> block.
+function buildMessages(settings, systemPrompt, userPrompt, parts = {}) {
+    const normal = () => [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+    ];
+
+    if (settings.send_as_roles !== true) return normal();
+
+    const match = systemPrompt.match(/<context>\s*([\s\S]*?)<\/context>/);
+    if (!match || !match[1].trim()) {
+        logDebug("Choices: Send as Roles enabled but no <context> block found, using standard layout.");
+        return normal();
+    }
+
+    // When real history messages are available, the <recent_story> text block is
+    // replaced by proper alternating user/assistant messages below.
+    const hasHistory = Array.isArray(parts.historyMessages) && parts.historyMessages.length > 0;
+
+    const before = systemPrompt.slice(0, match.index).trim();
+    const after = systemPrompt.slice(match.index + match[0].length).trim();
+
+    const messages = [];
+    if (before) messages.push({ role: "system", content: before });
+
+    const sectionRe = /<([a-zA-Z_]+)(?:\s[^>]*)?>\s*([\s\S]*?)\s*<\/\1>/g;
+    let m;
+    while ((m = sectionRe.exec(match[1])) !== null) {
+        if (hasHistory && m[1].toLowerCase() === "recent_story") continue; // sent as role messages instead
+        const content = m[2].trim();
+        if (!content || content === "(disabled)") continue; // don't send empty/disabled sections
+        messages.push({ role: "system", content: `<${m[1]}>\n${content}\n</${m[1]}>` });
+    }
+
+    if (after) messages.push({ role: "system", content: after });
+
+    // The story as an actual conversation: user lines as "user", character
+    // lines as "assistant", narration/system notes as "system".
+    if (hasHistory) {
+        for (const h of parts.historyMessages) {
+            const content = String(h.mes ?? "").trim();
+            if (!content) continue;
+            messages.push({ role: h.role, content });
+        }
+    }
+
+    messages.push({ role: "user", content: userPrompt });
+    return messages;
 }
 
 // ROUTING: connection profile first, legacy swap if enabled, generateRaw as last fallback.
@@ -178,5 +229,10 @@ export function parseChoicesResponse(text) {
             .trim()
             .replace(/^[-*\d.)\]]+\s*/, "")
             .trim())
+        .map(s => PUNCTUATION_RE.test(s) ? s : `${s}.`)
         .filter(s => s.length > 0);
 }
+
+// Matches a suggestion that already ends with terminal punctuation, allowing a
+// closing quote/bracket right after it (e.g. ...start!" or ...meal.).
+const PUNCTUATION_RE = /[.!?…]["'”’)\]]*\s*$/;
