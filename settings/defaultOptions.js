@@ -16,31 +16,31 @@ export const defaultOptions = [
         id: "opt_in_character",
         label: "In Character",
         enabled: true,
-        focus: "As in character as possible, trying not to overcomplicate things.",
+        focus: "A grounded, natural response that heavily leans into the user's established persona.",
     },
     {
         id: "opt_funny",
         label: "Funny",
         enabled: true,
-        focus: "Funny.",
+        focus: "A humorous, witty, or lighthearted approach to the current situation.",
     },
     {
         id: "opt_smart",
         label: "Smart",
         enabled: true,
-        focus: "Smart and clever.",
+        focus: "An analytical, clever, or resourceful action.",
     },
     {
         id: "opt_disengage",
         label: "Disengage",
         enabled: true,
-        focus: "Disengaging, walking off.",
+        focus: "Withdrawing from the interaction, stepping back, or attempting to walk away.",
     },
     {
         id: "opt_end_scene",
         label: "End Scene",
         enabled: true,
-        focus: "Engaging and trying to end the current scene.",
+        focus: "A decisive action or concluding remark aimed at naturally wrapping up the current scene.",
     },
 ];
 
