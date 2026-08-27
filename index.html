@@ -1,0 +1,107 @@
+<div id="choices_settings" class="choices_settings_content">
+    <div class="inline-drawer">
+        <div class="inline-drawer-toggle inline-drawer-header">
+            <div class="flex-container alignitemscenter justifycenter margin0 flex1">
+                <b id="choices_title" title="Choices | AI Action Suggestions">Choices | AI Action Suggestions</b>
+            </div>
+            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+        </div>
+
+        <div class="inline-drawer-content">
+            <div class="choices_settings_content">
+                <hr>
+
+                <h4 class="textAlignCenter">Global Settings</h4>
+
+                <label class="checkbox_label" title="Enable the input bar button and suggestion generation">
+                    <input type="checkbox" id="choices_enabled" />
+                    <span>Enable Extension</span>
+                </label>
+                <label class="checkbox_label" title="Swap to the selected connection profile while the request runs, then swap back (fixes some API issues)">
+                    <input type="checkbox" id="choices_legacy_api" />
+                    <span>Legacy Connection Profile</span>
+                </label>
+
+                <div class="flex-container alignitemscenter" style="margin-top: 8px;" title="Which connection profile the separate suggestion LLM should use">
+                    <span style="min-width: 150px;">Suggestion LLM:</span>
+                    <select id="choices_connection" class="text_pole flex1"></select>
+                </div>
+                <div class="flex-container alignitemscenter" style="margin-top: 8px;" title="How many recent chat messages are sent as {{imminentcontext}}">
+                    <span style="min-width: 150px;">Context Messages:</span>
+                    <input type="number" id="choices_context_length" class="text_pole flex1" value="6" min="0" step="1" />
+                </div>
+                <div class="flex-container alignitemscenter" style="margin-top: 8px;" title="Soft word limit per suggestion, mentioned in the prompt (not enforced)">
+                    <span style="min-width: 150px;">Word Limit (soft):</span>
+                    <input type="number" id="choices_word_limit" class="text_pole flex1" value="60" min="0" step="1" />
+                </div>
+                <div class="flex-container alignitemscenter" style="margin-top: 8px;" title="Milliseconds of typing idle before the open menu regenerates suggestions">
+                    <span style="min-width: 150px;">Regen Delay (ms):</span>
+                    <input type="number" id="choices_regen_delay" class="text_pole flex1" value="2000" min="0" step="100" />
+                </div>
+                <label class="checkbox_label" title="Print verbose logs to console for debugging">
+                    <input type="checkbox" id="choices_debug_mode" />
+                    <span>Debug Mode</span>
+                </label>
+
+                <div style="margin-top: 10px; margin-bottom: 4px; font-weight: bold; text-align: center;">Context Injections</div>
+                <label class="checkbox_label" title="Inject active World Info entries into {{worldinfo}}">
+                    <input type="checkbox" id="choices_inject_world_info" />
+                    <span>World Info ({{worldinfo}})</span>
+                </label>
+                <label class="checkbox_label" title="Inject WI outlet entries into {{wi-outlets}}">
+                    <input type="checkbox" id="choices_inject_wi_outlets" />
+                    <span>WI Outlets ({{wi-outlets}})</span>
+                </label>
+                <label class="checkbox_label" title="Include character name, description and personality in {{charInfo}}">
+                    <input type="checkbox" id="choices_include_char_info" />
+                    <span>Character Info ({{charInfo}})</span>
+                </label>
+                <label class="checkbox_label" title="Include the character scenario in {{scenario}}">
+                    <input type="checkbox" id="choices_include_scenario" />
+                    <span>Scenario ({{scenario}})</span>
+                </label>
+                <label class="checkbox_label" title="Include your persona description in {{persona}}">
+                    <input type="checkbox" id="choices_include_persona" />
+                    <span>User Persona ({{persona}})</span>
+                </label>
+
+                <hr>
+
+                <h4 class="textAlignCenter">Continue Prompt</h4>
+                <div class="textAlignCenter" style="font-size: 0.8em; opacity: 0.7; margin-bottom: 5px;">
+                    Macros: {{user}} {{char}} {{persona}} {{scenario}} {{charInfo}} {{worldinfo}} {{wi-outlets}} {{imminentcontext}} {{input}} {{optionFocus}} {{wordLimit}}
+                </div>
+                <textarea id="choices_continue_prompt" class="text_pole" rows="10" style="width: 100%; resize: vertical;"></textarea>
+                <div class="flex-container" style="margin-top: 5px;">
+                    <button id="choices_restore_prompt" class="menu_button flex1" title="Restore the default continue prompt"><span>Restore Default Prompt</span></button>
+                </div>
+
+                <hr>
+
+                <h4 class="textAlignCenter">Options</h4>
+                <div class="textAlignCenter" style="font-size: 0.8em; opacity: 0.7; margin-bottom: 10px;">(Each enabled option becomes one suggestion with its own quirk)</div>
+
+                <div id="choices_option_list">
+                    <!-- Options rendered here -->
+                </div>
+
+                <div class="flex-container" style="margin-top: 10px;">
+                    <button id="choices_add_option" class="menu_button flex1 fa-solid fa-plus" title="Add a new option"><span>Add Option</span></button>
+                    <button id="choices_restore_options" class="menu_button flex1 fa-solid fa-clock-rotate-left" title="Restore the default options"><span>Defaults</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Option Template (Hidden) -->
+<template id="choices_option_template">
+    <div class="choices-option-item">
+        <div class="flex-container alignitemscenter">
+            <input type="checkbox" class="choice-opt-enabled" title="Enable/Disable option" />
+            <input type="text" class="choice-opt-label text_pole flex1" placeholder="Option name" style="margin-left: 5px;" />
+            <button class="menu_button choice-opt-remove fa-solid fa-trash red_button" title="Remove option"></button>
+        </div>
+        <textarea class="choice-opt-focus text_pole" rows="2" placeholder="What should this option focus on?" style="width: 100%; resize: vertical; margin-top: 5px;"></textarea>
+    </div>
+</template>
