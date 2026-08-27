@@ -58,7 +58,7 @@ export class ChoicesPopup {
         <div id="choices_popup" style="display:none;">
             <div id="choices_popup_header">
                 <i class="fa-solid fa-lightbulb"></i>
-                <span id="choices_popup_title">AI action suggestions</span>
+                <span id="choices_popup_title">Suggestions</span>
                 <button id="choices_popup_regen" class="menu_button interactable fa-solid fa-rotate" title="Regenerate suggestions" tabindex="0"></button>
                 <button id="choices_popup_close" class="menu_button interactable fa-solid fa-xmark" title="Close" tabindex="0"></button>
             </div>
