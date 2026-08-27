@@ -114,5 +114,7 @@ export const defaultContinuePrompt = `You're the idea engine for {{user}} (the u
 <output_format>
 - Exactly one suggestion per option listed in <options>, in the same order.
 - Separate them with a single semicolon character (;).
-- No numbering, no explanations, no extra text of any kind.
+- PLAIN NATURAL LANGUAGE ONLY. Your reply is pasted straight into the user's input bar, so it must be pure prose written as {{user}} (first-person actions and dialogue). Absolutely NO XML/HTML tags of any kind — no <option> wrappers, no name or label attributes, no markdown, no numbering, no quotes around the whole suggestion, no explanations before or after.
+- Bad: <option name="Funny">I stand up and sigh.</option> — Good: I stand up and sigh.
+- The ONLY allowed structure in your entire reply is: suggestion 1; suggestion 2; suggestion 3. Nothing else.
 </output_format>`;

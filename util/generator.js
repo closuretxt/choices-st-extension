@@ -162,10 +162,21 @@ async function requestViaGenerateRaw(messages) {
 }
 
 // The LLM is instructed to separate suggestions with a ";" - split, trim, drop empties.
+// Some models like to wrap each suggestion in XML/HTML tags anyway (e.g.
+// <option name="Funny">...</option>) despite instructions - strip those wrappers
+// before parsing so the user never sees raw tags in the menu.
 export function parseChoicesResponse(text) {
     if (!text) return [];
     return String(text)
+        // Remove any tag-style wrappers around suggestions, e.g. <option name="X">, </option>, <suggestion>, </s>
+        .replace(/<\/?(?:option|suggestion|choice|s|li|p|item)[^>]*>/gi, "")
         .split(";")
-        .map(s => s.trim().replace(/^[-*\d.)\]]+\s*/, "").trim())
+        .map(s => s
+            // Also peel off any leftover leading/trailing tags on a segment
+            .replace(/^\s*(?:<[a-zA-Z][^>]*>)+\s*/, "")
+            .replace(/\s*(?:<\/[a-zA-Z][^>]*>)+\s*$/, "")
+            .trim()
+            .replace(/^[-*\d.)\]]+\s*/, "")
+            .trim())
         .filter(s => s.length > 0);
 }
