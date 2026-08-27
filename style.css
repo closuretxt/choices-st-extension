@@ -199,12 +199,23 @@
     border-radius: 8px;
     cursor: pointer;
     color: var(--SmartThemeBodyColor, #ddd);
-    transition: background 0.12s, transform 0.12s;
+    transition: background 0.12s;
+    animation: choices-option-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes choices-option-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .choices-option:hover {
     background: rgba(255, 255, 255, 0.08);
-    transform: translateX(2px);
 }
 
 .choices-option + .choices-option {
@@ -265,6 +276,15 @@
     text-align: center;
     opacity: 0.7;
     color: var(--SmartThemeBodyColor, #ddd);
+}
+
+.choices-loading {
+    animation: choices-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes choices-pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.85; }
 }
 
 .choices-error {
