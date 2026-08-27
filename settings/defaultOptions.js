@@ -55,7 +55,7 @@ export const defaultInputPlaceholder = "(empty - assume what the user most likel
 export const defaultInputPrompt = `<input_bar_draft>
 {{input}}
 </input_bar_draft>
-If input is present, it's absolute and should be contained in every option you suggest, someway or the other.
+If input is present, the actions or speech intent should be contained in every option you suggest somewhere.
 
 Generate the suggestions now. Your responses shall not provide a ending to the story and only contain actions from user.`;
 
