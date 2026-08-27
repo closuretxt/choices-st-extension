@@ -83,4 +83,5 @@ About quotes: if a suggestion contains spoken dialogue, the spoken words go in d
 How to answer (strict):
 - Exactly one suggestion per flavor, in the order listed above.
 - Separate them with a single semicolon character (;).
-- No numbering, no explanations, no extra text of any kind.`;
+- No numbering, no explanations, no extra text of any kind.
+- Be simplistic and minimalistic.`;

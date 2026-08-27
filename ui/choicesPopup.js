@@ -98,25 +98,21 @@ export class ChoicesPopup {
 
     _position() {
         const $popup = $("#choices_popup");
-        const $btn = $("#choices_input_button");
+        const $form = $("#form_sheld");
+        if ($form.length === 0) return;
 
-        // Horizontal: center the popup on the input bar button, clamped to the viewport.
-        if ($btn.length) {
-            const btnOffset = $btn.offset();
-            const btnCenter = btnOffset.left + ($btn.outerWidth() || 40) / 2;
-            const popupWidth = $popup.outerWidth() || 680;
-            const margin = 10;
-            let left = btnCenter - popupWidth / 2;
-            left = Math.min(Math.max(left, margin), Math.max(window.innerWidth - popupWidth - margin, margin));
-            $popup.css("left", `${Math.round(left)}px`);
-        }
+        const margin = 10;
+        const popupWidth = $popup.outerWidth() || 680;
+
+        // Horizontal: line the popup up with the input bar's right corner, clamped to the viewport.
+        const formOffset = $form.offset();
+        let left = formOffset.left + $form.outerWidth() - popupWidth;
+        left = Math.min(Math.max(left, margin), Math.max(window.innerWidth - popupWidth - margin, margin));
+        $popup.css("left", `${Math.round(left)}px`);
 
         // Vertical: sit just above the input bar.
-        const $form = $("#form_sheld");
-        if ($form.length) {
-            const bottom = Math.max(window.innerHeight - $form.offset().top + 10, 10);
-            $popup.css("bottom", `${bottom}px`);
-        }
+        const bottom = Math.max(window.innerHeight - formOffset.top + 10, 10);
+        $popup.css("bottom", `${bottom}px`);
     }
 
     _onUserInput() {
