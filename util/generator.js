@@ -212,16 +212,30 @@ async function requestViaGenerateRaw(messages) {
     return await generateRaw(user, {}, false, system);
 }
 
-// The LLM is instructed to separate suggestions with a ";" - split, trim, drop empties.
+// The LLM is instructed to put each suggestion on its own line - split on
+// line breaks (single or double, whatever the model uses), trim, drop empties.
+// Semicolons are kept as a fallback separator for models that ignore the
+// line-break instruction and reply in the old "; separated" format.
 // Some models like to wrap each suggestion in XML/HTML tags anyway (e.g.
 // <option name="Funny">...</option>) despite instructions - strip those wrappers
 // before parsing so the user never sees raw tags in the menu.
 export function parseChoicesResponse(text) {
     if (!text) return [];
-    return String(text)
+    const cleaned = String(text)
         // Remove any tag-style wrappers around suggestions, e.g. <option name="X">, </option>, <suggestion>, </s>
-        .replace(/<\/?(?:option|suggestion|choice|s|li|p|item)[^>]*>/gi, "")
-        .split(";")
+        .replace(/<\/?(?:option|suggestion|choice|s|li|p|item)[^>]*>/gi, "");
+
+    let segments = cleaned
+        // One suggestion per line: single newlines, double newlines, \r\n - all fine.
+        .split(/\r?\n[\r\n]*/);
+
+    // Fallback: if the model ignored line breaks and used semicolons instead,
+    // we'd only have one big segment - split that on ";".
+    if (segments.length <= 1 && cleaned.includes(";")) {
+        segments = cleaned.split(";");
+    }
+
+    return segments
         .map(s => s
             // Also peel off any leftover leading/trailing tags on a segment
             .replace(/^\s*(?:<[a-zA-Z][^>]*>)+\s*/, "")

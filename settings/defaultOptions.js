@@ -50,7 +50,7 @@ export const defaultInputPrompt = `<input_bar_draft>
 </input_bar_draft>
 If input is present, the actions or speech intent should be contained in every option you suggest somewhere, if there are unadressed questions, you can answer them. No purple prose.
 
-Generate the suggestions now. Your responses shall not provide a ending to the story and only contain actions from user. Do not use semicolons except when splitting options.`;
+Generate the suggestions now. Your responses shall not provide a ending to the story and only contain actions from user. Do not use semicolons at all.`;
 
 // ------------------------------------------------------------
 // 3. Continue prompt
@@ -107,9 +107,9 @@ export const defaultContinuePrompt = `You're the idea engine for {{user}} (the u
 </options>
 <output_format>
 - Exactly one suggestion per option listed in <options>, in the same order. The numbers in <options> are for you only — do NOT repeat them in your reply.
-- Separate them with a single semicolon character (;).
+- One suggestion per line. Separate suggestions ONLY with line breaks.
 - PLAIN NATURAL LANGUAGE ONLY. Your reply is pasted straight into the user's input bar, so it must be pure prose written as {{user}} (first-person actions and dialogue). Absolutely NO XML/HTML tags of any kind — no <option> wrappers, no name or label attributes, no markdown, no numbering, no quotes around the whole suggestion, no explanations before or after.
 - Bad: <option name="Funny">I stand up and sigh.</option> — Good: I stand up and sigh.
-- The ONLY allowed structure in your entire reply is: suggestion 1; suggestion 2; suggestion 3. Nothing else.
-- Each suggestion must end with terminal punctuation (. ! or ?) before the semicolon or the end of your reply — never cut a sentence short.
+- The ONLY allowed structure in your entire reply is each suggestion on its own line, nothing else.
+- Each suggestion must end with terminal punctuation (. ! or ?) at the end of its line — never cut a sentence short.
 </output_format>`;
