@@ -76,7 +76,13 @@ export class ChoicesPopup {
         $("#choices_popup").stop(true).fadeIn(150);
         $("#choices_input_button").toggleClass("active", true);
         logDebug("Choices popup opened.");
-        // Opening the menu always makes a fresh request based on the current context
+        // Reopening with an unchanged input bar keeps the already-rendered
+        // suggestions instead of rerolling; only a changed input regenerates.
+        const input = String($("#send_textarea").val() ?? "").trim();
+        if (input === this._lastGeneratedInput && $("#choices_popup_list .choices-option").length > 0) {
+            logDebug("Choices: input unchanged since last batch, keeping existing suggestions.");
+            return;
+        }
         this._lastGeneratedInput = null;
         this.scheduleRegen(0);
     }
@@ -229,7 +235,10 @@ export class ChoicesPopup {
         item.append($(`<div class="choices-option-num">${idx + 1}</div>`));
         item.append($(`<div class="choices-option-text"></div>`).text(text));
         item.append($(`<i class="fa-solid fa-circle-plus choices-option-go" title="Add to input"></i>`));
-        item.on("click", () => this.applyOption(text));
+        // Read the text from the DOM at click time: rows created mid-stream hold
+        // only the partial text in this closure, so a captured value would insert
+        // a truncated suggestion.
+        item.on("click", () => this.applyOption(item.find(".choices-option-text").text()));
         return item;
     }
 
@@ -247,8 +256,9 @@ export class ChoicesPopup {
         this._programmaticSet = false;
         ta.trigger("focus");
 
-        // After the insert, regenerate a fresh batch once the input has been idle for ~2s
-        this._lastGeneratedInput = null;
+        // After the insert, regenerate a fresh batch once the input has been idle for ~2s.
+        // Don't clear _lastGeneratedInput here: requestNew()'s equality check decides —
+        // if the insert somehow didn't change anything, nothing is rerolled.
         this.scheduleRegen(this.settings.regenDelay ?? 2000);
     }
 }
