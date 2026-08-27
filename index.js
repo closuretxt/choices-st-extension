@@ -9,6 +9,8 @@ export { loadSettings, saveSettings, defaultSettings };
 
 // Generator
 import { generateChoices } from "./util/generator.js";
+// Macro registration (ST macro-system registry, same approach as Recast)
+import { registerChoicesMacros } from "./util/contextBuilder.js";
 // UI
 import { inputButton } from "./ui/inputButton.js";
 import { choicesPopup } from "./ui/choicesPopup.js";
@@ -58,6 +60,11 @@ jQuery(async () => {
 
     loadSettings();
     initSettingsListeners();
+
+    // Register {{worldinfo}}, {{wi-outlets}}, {{imminentcontext}}, {{charInfo}},
+    // {{input}}, {{optionFocus}} and {{wordLimit}} with ST's macro system so
+    // substituteParams resolves them natively (like Recast does).
+    registerChoicesMacros();
 
     // Sparkle button in the input bar toggles the popup
     inputButton.init(() => choicesPopup.toggle());

@@ -102,7 +102,7 @@ export class ChoicesPopup {
         if ($form.length === 0) return;
 
         const margin = 10;
-        const popupWidth = $popup.outerWidth() || 680;
+        const popupWidth = $popup.outerWidth() || 410;
 
         // Horizontal: line the popup up with the input bar's right corner, clamped to the viewport.
         const formOffset = $form.offset();

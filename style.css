@@ -124,7 +124,7 @@
     position: fixed;
     left: 50%; /* overridden by JS: aligned to the input bar button */
     bottom: 90px;
-    width: min(680px, 92vw);
+    width: min(410px, 92vw);
     max-height: 55vh;
     background: var(--SmartThemeBlurTintColor, #1a1a2e);
     border: 1px solid var(--SmartThemeBorderColor, #444);
