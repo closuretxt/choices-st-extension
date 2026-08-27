@@ -43,7 +43,19 @@ export function requestChoices() {
 }
 
 // Startup
-jQuery(() => {
+jQuery(async () => {
+    // SillyTavern does NOT auto-load extension index.html files - the extension
+    // has to fetch its own HTML and append it to the extensions settings panel.
+    try {
+        const settingsHtml = await $.get(`${extensionFolderPath}/index.html`);
+        $("#extensions_settings").append(settingsHtml);
+    } catch (err) {
+        console.error("Choices: failed to load index.html", err);
+        if (typeof toastr !== "undefined") {
+            toastr.error("Choices: could not load the settings page HTML. Check the extension folder name.", "Choices");
+        }
+    }
+
     loadSettings();
     initSettingsListeners();
 

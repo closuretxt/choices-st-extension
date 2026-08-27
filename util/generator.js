@@ -55,6 +55,8 @@ export async function generateChoices(inputText = null) {
         throw e;
     }
 
+    logDebug("Choices raw response:", result);
+
     // A newer request superseded this one (menu closed / regenerated). Discard silently.
     if (myId !== _requestId) {
         logDebug("Choices: discarding stale suggestion response.");
@@ -70,7 +72,12 @@ export async function generateChoices(inputText = null) {
 async function sendRequest(st, settings, messages) {
     const profiles = st?.extensionSettings?.connectionManager?.profiles || [];
     const profile = profiles.find(p => p.id === settings.connection) || profiles.find(p => p.name === settings.connection);
-    const profileId = profile ? profile.id : "";
+    // Empty or missing selection falls back to the currently active profile
+    // (mirrors Recast's resolveConnectionProfile behavior - sending an empty
+    // profile id to sendRequest fails on most setups).
+    const selectedProfileId = st?.extensionSettings?.connectionManager?.selectedProfile || "";
+    const profileId = profile ? profile.id : selectedProfileId;
+    logDebug(`Choices: using connection profile '${profile ? profile.name : "<current>"}' (id: ${profileId || "none"})`);
 
     // Legacy API: swap to the target profile, use the current connection, then swap back.
     if (settings.legacy_api && profile) {

@@ -137,7 +137,7 @@ export class ChoicesPopup {
             .catch((err) => {
                 console.error("Choices: failed to generate suggestions", err);
                 if (myId !== this._requestId || !this.isOpen) return;
-                this.renderOptions([]);
+                this.renderError(err?.message || String(err));
                 if (typeof toastr !== "undefined") toastr.error(err?.message || String(err), "Choices");
             })
             .finally(() => {
@@ -149,6 +149,12 @@ export class ChoicesPopup {
         $("#choices_popup_list").empty().append(
             `<div class="choices-loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Thinking...</div>`
         );
+    }
+
+    renderError(message) {
+        const box = $(`<div class="choices-empty choices-error"></div>`);
+        box.text(`Failed to get suggestions: ${message}`);
+        $("#choices_popup_list").empty().append(box);
     }
 
     renderOptions(results) {
