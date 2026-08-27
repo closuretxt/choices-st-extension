@@ -1,6 +1,6 @@
 // Sends the suggestion request to the configured (separate) LLM and parses the response.
-import { extension_settings, getContext } from "../../../extensions.js";
-import { generateRaw } from "../../../../script.js";
+import { extension_settings, getContext } from "../../../../extensions.js";
+import { generateRaw } from "../../../../../script.js";
 import { extensionName, logDebug } from "../index.js";
 import { swapProfile } from "./profileSwapper.js";
 import { applyChoicesMacros, collectContextParts } from "./contextBuilder.js";

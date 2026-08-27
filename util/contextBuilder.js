@@ -1,8 +1,8 @@
 // Builds the context parts that feed the continue prompt macros.
-import { extension_settings, getContext } from "../../../extensions.js";
-import { substituteParams } from "../../../../script.js";
-import { power_user } from "../../../power-user.js";
-import { getWorldInfoPrompt } from "../../../world-info.js";
+import { extension_settings, getContext } from "../../../../extensions.js";
+import { substituteParams } from "../../../../../script.js";
+import { power_user } from "../../../../power-user.js";
+import { getWorldInfoPrompt } from "../../../../world-info.js";
 import { extensionName, logDebug } from "../index.js";
 
 // Collects everything the prompt macros can reference.

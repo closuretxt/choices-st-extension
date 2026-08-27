@@ -1,6 +1,6 @@
 // The floating suggestions panel above the input bar.
 // Generation ONLY happens while the menu is open.
-import { extension_settings } from "../../../extensions.js";
+import { extension_settings } from "../../../../extensions.js";
 import { extensionName, logDebug } from "../index.js";
 
 export class ChoicesPopup {
