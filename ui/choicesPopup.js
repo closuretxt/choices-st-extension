@@ -46,13 +46,18 @@ export class ChoicesPopup {
         $(document).off("keydown.choicesClose").on("keydown.choicesClose", (e) => {
             if (e.key === "Escape" && this.isOpen) this.close();
         });
+
+        // Keep the popup anchored to the button on window resizes
+        $(window).off("resize.choicesPos").on("resize.choicesPos", () => {
+            if (this.isOpen) this._position();
+        });
     }
 
     _buildDom() {
         return `
         <div id="choices_popup" style="display:none;">
             <div id="choices_popup_header">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <i class="fa-solid fa-lightbulb"></i>
                 <span id="choices_popup_title">AI action suggestions</span>
                 <button id="choices_popup_regen" class="menu_button interactable fa-solid fa-rotate" title="Regenerate suggestions" tabindex="0"></button>
                 <button id="choices_popup_close" class="menu_button interactable fa-solid fa-xmark" title="Close" tabindex="0"></button>
@@ -92,11 +97,26 @@ export class ChoicesPopup {
     }
 
     _position() {
+        const $popup = $("#choices_popup");
+        const $btn = $("#choices_input_button");
+
+        // Horizontal: center the popup on the input bar button, clamped to the viewport.
+        if ($btn.length) {
+            const btnOffset = $btn.offset();
+            const btnCenter = btnOffset.left + ($btn.outerWidth() || 40) / 2;
+            const popupWidth = $popup.outerWidth() || 680;
+            const margin = 10;
+            let left = btnCenter - popupWidth / 2;
+            left = Math.min(Math.max(left, margin), Math.max(window.innerWidth - popupWidth - margin, margin));
+            $popup.css("left", `${Math.round(left)}px`);
+        }
+
+        // Vertical: sit just above the input bar.
         const $form = $("#form_sheld");
-        if ($form.length === 0) return;
-        const formTop = $form.offset().top;
-        const bottom = Math.max(window.innerHeight - formTop + 10, 10);
-        $("#choices_popup").css("bottom", `${bottom}px`);
+        if ($form.length) {
+            const bottom = Math.max(window.innerHeight - $form.offset().top + 10, 10);
+            $popup.css("bottom", `${bottom}px`);
+        }
     }
 
     _onUserInput() {

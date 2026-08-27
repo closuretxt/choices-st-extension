@@ -122,8 +122,8 @@
 /* ===== Suggestions popup ===== */
 #choices_popup {
     position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 50%; /* overridden by JS: aligned to the input bar button */
+    bottom: 90px;
     width: min(680px, 92vw);
     max-height: 55vh;
     background: var(--SmartThemeBlurTintColor, #1a1a2e);
@@ -164,7 +164,7 @@
     opacity: 0.55;
 }
 
-#choices_popup_header .fa-wand-magic-sparkles {
+#choices_popup_header .fa-lightbulb {
     color: #a06be0;
 }
 
@@ -264,6 +264,6 @@
 }
 
 @keyframes choices-fade-in {
-    from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }

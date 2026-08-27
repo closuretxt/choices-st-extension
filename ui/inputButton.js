@@ -8,7 +8,7 @@ export class InputButton {
         this.onClick = onClick;
 
         if ($("#choices_input_button").length === 0) {
-            const buttonHtml = `<div id="choices_input_button" class="fa-solid fa-wand-magic-sparkles interactable" title="Get action ideas" tabindex="0"></div>`;
+            const buttonHtml = `<div id="choices_input_button" class="fa-solid fa-lightbulb interactable" title="Get action ideas" tabindex="0"></div>`;
 
             const rightForm = $("#rightSendForm");
             if (rightForm.length) {

@@ -112,6 +112,20 @@ export async function loadSettings() {
         }
     }
 
+    // Migration: unmodified old prompts get upgraded to the current default;
+    // customized ones only get the dialogue-quote rule patched in if missing.
+    const OLD_PROMPT_MARKER = "You are a suggestion engine for an interactive roleplay.";
+    if (typeof s.continuePrompt === "string" && s.continuePrompt.length > 0) {
+        if (s.continuePrompt.includes(OLD_PROMPT_MARKER)) {
+            s.continuePrompt = defaultContinuePrompt;
+        } else if (!s.continuePrompt.includes("wrapped in double quotes") && !s.continuePrompt.includes("About quotes:")) {
+            s.continuePrompt = s.continuePrompt.replace(
+                "Do NOT wrap them in quotes.",
+                'If a suggestion contains spoken dialogue, the spoken part MUST be wrapped in double quotes ("like this"). Never wrap the entire suggestion in quotes, only the spoken words inside it. Do NOT wrap whole suggestions in quotes.'
+            );
+        }
+    }
+
     // UI
     $("#choices_enabled").prop("checked", s.enabled);
     $("#choices_legacy_api").prop("checked", s.legacy_api);
