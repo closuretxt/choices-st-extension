@@ -185,3 +185,5 @@ export class ChoicesPopup {
         this.scheduleRegen(this.settings.regenDelay ?? 2000);
     }
 }
+
+export const choicesPopup = new ChoicesPopup();
