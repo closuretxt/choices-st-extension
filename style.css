@@ -69,6 +69,23 @@
 }
 
 /* Option editor items */
+.choices_settings_content .choice-opt-num {
+    flex-shrink: 0;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75em;
+    font-weight: 700;
+    color: var(--SmartThemeBodyColor, #ccc);
+    background: rgba(74, 163, 224, 0.18);
+    border: 1px solid rgba(74, 163, 224, 0.35);
+    opacity: 0.85;
+    margin-right: 6px;
+}
+
 #choices_option_list .choices-option-item {
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.1));

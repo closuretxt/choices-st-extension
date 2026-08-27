@@ -54,12 +54,11 @@ export function renderOptionsEditor() {
     list.empty();
 
     const options = extension_settings[extensionName].options || [];
-    options.forEach((opt) => {
+    options.forEach((opt, index) => {
         const row = $(template);
+        row.find(".choice-opt-num").text(index + 1);
         row.find(".choice-opt-enabled").prop("checked", opt.enabled !== false);
-        row.find(".choice-opt-label").val(opt.label);
         row.find(".choice-opt-focus").val(opt.focus);
-        row.attr("data-opt-id", opt.id);
         list.append(row);
     });
 }
@@ -86,8 +85,6 @@ export function initSettingsListeners() {
     $("#choices_add_option").on("click", () => {
         const s = extension_settings[extensionName];
         s.options.push({
-            id: `opt_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
-            label: "New Option",
             enabled: true,
             focus: "",
         });
@@ -105,8 +102,12 @@ export function initSettingsListeners() {
     });
 
     $("#choices_option_list").on("click", ".choice-opt-remove", function () {
-        const id = $(this).closest(".choices-option-item").attr("data-opt-id");
-        extension_settings[extensionName].options = (extension_settings[extensionName].options || []).filter(o => o.id !== id);
+        // Options are plain array entries: their position is their identity.
+        const index = $(this).closest(".choices-option-item").index();
+        const options = extension_settings[extensionName].options || [];
+        if (index >= 0 && index < options.length) {
+            options.splice(index, 1);
+        }
         renderOptionsEditor();
         saveSettings();
     });
@@ -136,6 +137,15 @@ export async function loadSettings() {
                 'If a suggestion contains spoken dialogue, the spoken part MUST be wrapped in double quotes ("like this"). Never wrap the entire suggestion in quotes, only the spoken words inside it. Do NOT wrap whole suggestions in quotes.'
             );
         }
+    }
+
+    // No backwards compatibility: old option objects (with id/label fields)
+    // don't match the { enabled, focus } shape, so they get reset to defaults.
+    const optionsAreValid = Array.isArray(s.options) && s.options.every(
+        o => o && typeof o === "object" && typeof o.focus === "string" && !("label" in o) && !("id" in o)
+    );
+    if (!optionsAreValid) {
+        s.options = JSON.parse(JSON.stringify(defaultOptions));
     }
 
     // UI
@@ -180,12 +190,10 @@ export function saveSettings() {
     s.continuePrompt = $("#choices_continue_prompt").val() ?? s.continuePrompt;
     s.inputPrompt = $("#choices_input_prompt").val() ?? s.inputPrompt;
 
-    // Options are read back from the editor rows
+    // Options are read back from the editor rows (position = number, no id/label)
     const options = [];
     $("#choices_option_list .choices-option-item").each(function () {
         options.push({
-            id: $(this).attr("data-opt-id") || `opt_${Date.now().toString(36)}`,
-            label: $(this).find(".choice-opt-label").val() || "Option",
             enabled: $(this).find(".choice-opt-enabled").prop("checked"),
             focus: $(this).find(".choice-opt-focus").val() || "",
         });

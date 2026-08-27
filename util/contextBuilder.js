@@ -150,10 +150,10 @@ export async function collectContextParts(inputText, enabledOptions) {
         ? ((char?.scenario || "").trim() || "(no scenario set)")
         : "(disabled)";
 
-    // The injected quirks of each enabled option, one per <option> tag
-    const focusLines = (enabledOptions || []).map((opt) => `<option name="${opt.label}">${opt.focus}</option>`);
+    // The injected quirks of each enabled option as a numbered plain list
+    const focusLines = (enabledOptions || []).map((opt, i) => `${i + 1} - ${opt.focus}`);
     const optionFocus = focusLines.length > 0
-        ? "Give each suggestion its own flavor, one per <option> tag, in this exact order:\n" + focusLines.join("\n")
+        ? `Reply with ${enabledOptions.length} suggestions, each one as the following (no names, just the suggestion itself):\n` + focusLines.join("\n")
         : "(no options configured)";
 
     return {

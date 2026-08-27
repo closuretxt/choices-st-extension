@@ -11,34 +11,27 @@
 // ------------------------------------------------------------
 // 1. Default suggestion options
 // ------------------------------------------------------------
+// Each option = { enabled, focus }. Options are plain array entries - their
+// position (index) is their number; only the focus text is sent to the
+// suggestion LLM. There is no label or id field - focus IS the description.
 export const defaultOptions = [
     {
-        id: "opt_in_character",
-        label: "In Character",
         enabled: true,
         focus: "A grounded, natural response that heavily leans into the user's established persona.",
     },
     {
-        id: "opt_funny",
-        label: "Funny",
         enabled: true,
         focus: "A humorous, witty, or lighthearted approach to the current situation.",
     },
     {
-        id: "opt_smart",
-        label: "Smart",
         enabled: true,
         focus: "An analytical, clever, or resourceful action.",
     },
     {
-        id: "opt_disengage",
-        label: "Disengage",
         enabled: true,
         focus: "Withdrawing from the interaction, stepping back, or attempting to walk away.",
     },
     {
-        id: "opt_end_scene",
-        label: "End Scene",
         enabled: true,
         focus: "A decisive action or concluding remark aimed at naturally wrapping up the current scene.",
     },
@@ -55,9 +48,9 @@ export const defaultInputPlaceholder = "(empty - assume what the user most likel
 export const defaultInputPrompt = `<input_bar_draft>
 {{input}}
 </input_bar_draft>
-If input is present, integrate its intent into all suggestions. Answer any pending questions directly. Focus on dynamic actions and momentum. No purple prose, no dragging conversations, just cool, plot-driving developments.
+If input is present, the actions or speech intent should be contained in every option you suggest somewhere, if there are unadressed questions, you can answer them. No purple prose.
 
-Generate the suggestions now. Your responses must only contain actions from the user, pushing the story forward without writing the ending.`;
+Generate the suggestions now. Your responses shall not provide a ending to the story and only contain actions from user. Do not use semicolons except when splitting options.`;
 
 // ------------------------------------------------------------
 // 3. Continue prompt
@@ -73,17 +66,17 @@ Generate the suggestions now. Your responses must only contain actions from the 
 //   {{input}}            -> the current draft in the input bar (falls back to defaultInputPlaceholder when empty)
 //   {{optionFocus}}      -> the injected list of enabled option quirks
 //   {{wordLimit}}        -> soft word limit per suggestion (guidance only, not enforced in code)
-export const defaultContinuePrompt = `You're the action engine for {{user}} in an ongoing roleplay. Read the scene and generate {{user}}'s next proactive move.
+export const defaultContinuePrompt = `You're the idea engine for {{user}} (the user's character) in an ongoing roleplay. Read the scene below and come up with what {{user}} could do or say next.
 
 <instructions>
-- Write ONLY what {{user}} does or says next. Never control other characters.
-- Match the tense and perspective of the story.
-- Keep suggestions punchy (around {{wordLimit}} words). Drive the plot forward with cool, dynamic actions rather than standing around talking, explaining, or waiting for reactions.
-- If {{user}} provides a draft, expand it into a sharp, actionable sequence. Retain the original meaning and quotes.
-- If no draft exists, assume a proactive, momentum-heavy path.
-- Make each option genuinely distinct in approach and outcome.
-- Use double quotes ("like this") for spoken dialogue only.
-- Be direct and minimalistic. Cut tedious explanations, internal monologues, and redundant conversational filler. Keep it moving.
+- Suggestions are ONLY things {{user}} does or says next. Never write actions or dialogue for the other characters.
+- Match the tense and grammatical person the story is using.
+- Keep each suggestion short and punchy — around {{wordLimit}} words max. It's a suggestion, not a novel.
+- Got a draft from {{user}}? Then your MAIN job is expanding THAT into a fuller version of itself. Keep its meaning and any quotes in it — don't swap it for unrelated ideas.
+- No draft? You're free to assume which path {{user}} most likely wants and run with it.
+- Make each option genuinely different — different angle, different vibe, different outcome. If two of your suggestions could be merged into one without losing anything, they're too similar: rethink them.
+- About quotes: if a suggestion contains spoken dialogue, the spoken words go in double quotes ("like this"). Never quote-wrap the entire suggestion, only the dialogue inside it. If the draft you're expanding already has quotes, keep them.
+- Be simplistic and minimalistic. Avoid redundancy and try to progress/push it forward.
 </instructions>
 
 <context>
@@ -113,9 +106,10 @@ export const defaultContinuePrompt = `You're the action engine for {{user}} in a
 {{optionFocus}}
 </options>
 <output_format>
-- Exactly one suggestion per option listed in <options>, in the same order.
+- Exactly one suggestion per option listed in <options>, in the same order. The numbers in <options> are for you only — do NOT repeat them in your reply.
 - Separate them with a single semicolon character (;).
-- PLAIN NATURAL LANGUAGE ONLY. No XML/HTML tags, no markdown, no numbering, no explanations. Just pure prose written as {{user}}.
-- Format strictly as: suggestion 1; suggestion 2; suggestion 3.
-- Each suggestion must end with terminal punctuation (. ! or ?) before the semicolon.
+- PLAIN NATURAL LANGUAGE ONLY. Your reply is pasted straight into the user's input bar, so it must be pure prose written as {{user}} (first-person actions and dialogue). Absolutely NO XML/HTML tags of any kind — no <option> wrappers, no name or label attributes, no markdown, no numbering, no quotes around the whole suggestion, no explanations before or after.
+- Bad: <option name="Funny">I stand up and sigh.</option> — Good: I stand up and sigh.
+- The ONLY allowed structure in your entire reply is: suggestion 1; suggestion 2; suggestion 3. Nothing else.
+- Each suggestion must end with terminal punctuation (. ! or ?) before the semicolon or the end of your reply — never cut a sentence short.
 </output_format>`;
