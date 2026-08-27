@@ -17,23 +17,23 @@
 export const defaultOptions = [
     {
         enabled: true,
-        focus: "A grounded, natural response that heavily leans into the user's established persona.",
+        focus: "A grounded, natural response that heavily leans into the user's established persona and expected from him.",
     },
     {
         enabled: true,
-        focus: "A humorous, witty, or lighthearted approach to the current situation.",
+        focus: "A humorous and/or sarcarstic approach to the current situation. (No puns or cringe random jokes)",
     },
     {
         enabled: true,
-        focus: "An analytical, clever, or resourceful action.",
+        focus: "A clever, negative bias refusal response.",
     },
     {
         enabled: true,
-        focus: "Withdrawing from the interaction, stepping back, or attempting to walk away.",
+        focus: "Withdrawing from the interaction, stepping back, or attempting to walk away with no interest.",
     },
     {
         enabled: true,
-        focus: "A decisive action or concluding remark aimed at naturally wrapping up the current scene.",
+        focus: "A decisive action or concluding remark aimed at naturally wrapping up the current scene to speed it up.",
     },
 ];
 
@@ -50,7 +50,7 @@ export const defaultInputPrompt = `<input_bar_draft>
 </input_bar_draft>
 If input is present, the actions or speech intent should be contained in every option you suggest somewhere, if there are unadressed questions, you can answer them. No purple prose.
 
-Generate the suggestions now. Your responses shall not provide a ending to the story and only contain actions from user. Do not use semicolons at all.`;
+Generate the suggestions now. Your responses shall not provide a ending to the story and only contain actions from user.`;
 
 // ------------------------------------------------------------
 // 3. Continue prompt
