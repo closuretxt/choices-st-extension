@@ -90,22 +90,24 @@ export function initSettingsListeners() {
             enabled: true,
             focus: "",
         });
-        saveSettings();
+        // Render first, then save: saveSettings() reads the options back from
+        // the editor rows, so the DOM must reflect the new state beforehand.
         renderOptionsEditor();
+        saveSettings();
     });
 
     $("#choices_restore_options").on("click", () => {
         extension_settings[extensionName].options = JSON.parse(JSON.stringify(defaultOptions));
-        saveSettings();
         renderOptionsEditor();
+        saveSettings();
         if (typeof toastr !== "undefined") toastr.success("Default options restored.", "Choices");
     });
 
     $("#choices_option_list").on("click", ".choice-opt-remove", function () {
         const id = $(this).closest(".choices-option-item").attr("data-opt-id");
         extension_settings[extensionName].options = (extension_settings[extensionName].options || []).filter(o => o.id !== id);
-        saveSettings();
         renderOptionsEditor();
+        saveSettings();
     });
 }
 
