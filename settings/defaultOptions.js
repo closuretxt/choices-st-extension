@@ -56,7 +56,7 @@ export const defaultInputPrompt = `<input_bar_draft>
 {{input}}
 </input_bar_draft>
 
-Generate the suggestions now.`;
+Generate the suggestions now. Your responses shall not provide a ending to the story and only contain actions from user.`;
 
 // ------------------------------------------------------------
 // 3. Continue prompt

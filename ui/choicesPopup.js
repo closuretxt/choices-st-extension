@@ -186,8 +186,9 @@ export class ChoicesPopup {
         // Streaming: incrementally update/append items instead of re-rendering,
         // so options appear as the AI writes them (last one still "typing").
         if (isStreaming) {
-            list.find(".choices-loading").remove();
+            // Nothing usable yet (e.g. empty first chunks): keep the spinner.
             if (!results || results.length === 0) return;
+            list.find(".choices-loading").remove();
 
             const existing = list.find(".choices-option");
             results.forEach((text, idx) => {

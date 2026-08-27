@@ -134,10 +134,16 @@ async function requestViaConnectionManager(profileId, messages, onChunk = null) 
     if (typeof createGenerator === "function") {
         let result = "";
         for await (const chunk of createGenerator()) {
-            if (chunk && chunk.text !== undefined) {
-                result = chunk.text;
-                if (onChunk) onChunk(result);
-            }
+            // Extract the text from whatever shape the service emits
+            const piece = typeof chunk === "string"
+                ? chunk
+                : (chunk?.text ?? chunk?.token ?? chunk?.content ?? "");
+            if (!piece) continue;
+
+            // Services either send cumulative text or deltas - handle both
+            result = piece.startsWith(result) ? piece : result + piece;
+            logDebug("Choices stream chunk:", chunk, "->", result);
+            if (onChunk) onChunk(result);
         }
         return result;
     }
