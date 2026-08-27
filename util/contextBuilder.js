@@ -6,6 +6,7 @@ import { substituteParams } from "../../../../../script.js";
 import { power_user } from "../../../../power-user.js";
 import { getWorldInfoPrompt } from "../../../../world-info.js";
 import { macros as macroSystem } from "../../../../macros/macro-system.js";
+import { defaultInputPlaceholder } from "../settings/defaultOptions.js";
 import { extensionName, logDebug } from "../index.js";
 
 // Latest collected context, read by the registered macro handlers.
@@ -38,7 +39,7 @@ export function registerChoicesMacros() {
     register("wi-outlets", "World Info outlet entries as <outlet> blocks (Choices).", () => macroState.wiOutlets ?? "");
     register("imminentcontext", "The last N chat messages (Choices).", () => macroState.imminentContext ?? "");
     register("charInfo", "Character name, description and personality (Choices).", () => macroState.charInfo ?? "");
-    register("input", "Current draft in the input bar (Choices).", () => macroState.input ?? "");
+    register("input", "Current draft in the input bar, or the empty-placeholder (Choices).", () => macroState.inputDisplay ?? macroState.input ?? "");
     register("optionFocus", "Injected flavor quirks of the enabled options (Choices).", () => macroState.optionFocus ?? "");
     register("wordLimit", "Soft word limit per suggestion (Choices).", () => String(macroState.wordLimit ?? ""));
 
@@ -159,6 +160,7 @@ export async function collectContextParts(inputText, enabledOptions) {
         optionFocus,
         wordLimit: settings.wordLimit ?? 60,
         input: (inputText || "").trim(),
+        inputDisplay: (inputText || "").trim() || defaultInputPlaceholder,
     };
 }
 
@@ -194,7 +196,7 @@ export function applyChoicesMacros(template, parts) {
             "{{wi-outlets}}": parts.wiOutlets ?? "",
             "{{imminentcontext}}": parts.imminentContext ?? "",
             "{{charInfo}}": parts.charInfo ?? "",
-            "{{input}}": parts.input ?? "",
+            "{{input}}": parts.inputDisplay ?? "",
             "{{optionFocus}}": parts.optionFocus ?? "",
             "{{wordLimit}}": String(parts.wordLimit ?? ""),
         };

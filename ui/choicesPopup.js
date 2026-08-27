@@ -143,9 +143,16 @@ export class ChoicesPopup {
         this.showLoading();
         const myId = ++this._requestId;
         this.isGenerating = true;
+        const useStreaming = this.settings.stream !== false;
+
+        // While streaming, update the list live as the response arrives.
+        const onChunk = (parsed) => {
+            if (myId !== this._requestId || !this.isOpen) return;
+            this.renderOptions(parsed, true);
+        };
 
         Promise.resolve()
-            .then(() => this._requestFn())
+            .then(() => this._requestFn(useStreaming ? onChunk : undefined))
             .then((results) => {
                 if (myId !== this._requestId || !this.isOpen) return; // stale or closed: discard, never trigger regen
                 this.renderOptions(results);
@@ -173,20 +180,51 @@ export class ChoicesPopup {
         $("#choices_popup_list").empty().append(box);
     }
 
-    renderOptions(results) {
-        const list = $("#choices_popup_list").empty();
+    renderOptions(results, isStreaming = false) {
+        const list = $("#choices_popup_list");
+
+        // Streaming: incrementally update/append items instead of re-rendering,
+        // so options appear as the AI writes them (last one still "typing").
+        if (isStreaming) {
+            list.find(".choices-loading").remove();
+            if (!results || results.length === 0) return;
+
+            const existing = list.find(".choices-option");
+            results.forEach((text, idx) => {
+                let item = existing.eq(idx);
+                if (item.length === 0) {
+                    list.append(this._buildOptionItem(text, idx));
+                    item = list.find(".choices-option").eq(idx);
+                } else {
+                    item.find(".choices-option-text").text(text);
+                }
+            });
+            existing.slice(results.length).remove();
+
+            list.find(".choices-option").removeClass("streaming");
+            list.find(".choices-option").last().addClass("streaming");
+            list.scrollTop(list[0]?.scrollHeight ?? 0);
+            return;
+        }
+
+        // Final render (non-streaming or stream completed).
+        list.empty();
         if (!results || results.length === 0) {
             list.append(`<div class="choices-empty">No suggestions returned.</div>`);
             return;
         }
         results.forEach((text, idx) => {
-            const item = $(`<div class="choices-option"></div>`);
-            item.append($(`<div class="choices-option-num">${idx + 1}</div>`));
-            item.append($(`<div class="choices-option-text"></div>`).text(text));
-            item.append($(`<i class="fa-solid fa-circle-plus choices-option-go" title="Add to input"></i>`));
-            item.on("click", () => this.applyOption(text));
-            list.append(item);
+            list.append(this._buildOptionItem(text, idx));
         });
+    }
+
+    _buildOptionItem(text, idx) {
+        const item = $(`<div class="choices-option"></div>`);
+        item.append($(`<div class="choices-option-num">${idx + 1}</div>`));
+        item.append($(`<div class="choices-option-text"></div>`).text(text));
+        item.append($(`<i class="fa-solid fa-circle-plus choices-option-go" title="Add to input"></i>`));
+        item.on("click", () => this.applyOption(text));
+        return item;
     }
 
     // Adds the suggestion to the input bar WITHOUT sending, and WITHOUT closing the menu.

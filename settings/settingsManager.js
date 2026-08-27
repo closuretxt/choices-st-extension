@@ -1,6 +1,6 @@
 import { extension_settings, getContext } from "../../../../extensions.js";
 import { saveSettingsDebounced } from "../../../../../script.js";
-import { defaultOptions, defaultContinuePrompt } from "./defaultOptions.js";
+import { defaultOptions, defaultContinuePrompt, defaultInputPrompt } from "./defaultOptions.js";
 import { extensionName } from "../index.js";
 
 export const defaultSettings = {
@@ -10,6 +10,7 @@ export const defaultSettings = {
     contextLength: 6, // Recent chat messages sent as {{imminentcontext}}
     wordLimit: 60, // Soft word limit injected in the prompt (guidance only, not enforced in code)
     regenDelay: 2000, // Idle time (ms) after typing stops before the open menu regenerates
+    stream: true, // Stream the response and load options as they arrive
     debug_mode: false,
     injectWorldInfo: true, // {{worldinfo}} - active World Info entries
     injectWIOutlets: true, // {{wi-outlets}} - WI outlet entries
@@ -17,6 +18,7 @@ export const defaultSettings = {
     includeScenario: true, // {{scenario}} - character scenario
     includePersona: true, // {{persona}} - user persona description
     continuePrompt: defaultContinuePrompt,
+    inputPrompt: defaultInputPrompt,
     options: defaultOptions,
 };
 
@@ -63,8 +65,15 @@ export function renderOptionsEditor() {
 
 // LISTENERS
 export function initSettingsListeners() {
-    $("#choices_enabled, #choices_legacy_api, #choices_debug_mode, #choices_connection, #choices_inject_world_info, #choices_inject_wi_outlets, #choices_include_char_info, #choices_include_scenario, #choices_include_persona").on("change", saveSettings);
-    $("#choices_context_length, #choices_word_limit, #choices_regen_delay, #choices_continue_prompt").on("input change", saveSettings);
+    $("#choices_enabled, #choices_legacy_api, #choices_debug_mode, #choices_connection, #choices_stream, #choices_inject_world_info, #choices_inject_wi_outlets, #choices_include_char_info, #choices_include_scenario, #choices_include_persona").on("change", saveSettings);
+    $("#choices_context_length, #choices_word_limit, #choices_regen_delay, #choices_continue_prompt, #choices_input_prompt").on("input change", saveSettings);
+
+    $("#choices_restore_input_prompt").on("click", () => {
+        extension_settings[extensionName].inputPrompt = defaultInputPrompt;
+        $("#choices_input_prompt").val(defaultInputPrompt);
+        saveSettingsDebounced();
+        if (typeof toastr !== "undefined") toastr.success("Input message restored.", "Choices");
+    });
 
     $("#choices_restore_prompt").on("click", () => {
         extension_settings[extensionName].continuePrompt = defaultContinuePrompt;
@@ -130,6 +139,7 @@ export async function loadSettings() {
     $("#choices_enabled").prop("checked", s.enabled);
     $("#choices_legacy_api").prop("checked", s.legacy_api);
     $("#choices_debug_mode").prop("checked", s.debug_mode);
+    $("#choices_stream").prop("checked", s.stream);
     $("#choices_inject_world_info").prop("checked", s.injectWorldInfo);
     $("#choices_inject_wi_outlets").prop("checked", s.injectWIOutlets);
     $("#choices_include_char_info").prop("checked", s.includeCharInfo);
@@ -139,6 +149,7 @@ export async function loadSettings() {
     $("#choices_word_limit").val(s.wordLimit ?? 60);
     $("#choices_regen_delay").val(s.regenDelay ?? 2000);
     $("#choices_continue_prompt").val(s.continuePrompt ?? defaultContinuePrompt);
+    $("#choices_input_prompt").val(s.inputPrompt ?? defaultInputPrompt);
 
     populateConnectionDropdown();
     renderOptionsEditor();
@@ -150,6 +161,7 @@ export function saveSettings() {
     s.enabled = $("#choices_enabled").prop("checked");
     s.legacy_api = $("#choices_legacy_api").prop("checked");
     s.debug_mode = $("#choices_debug_mode").prop("checked");
+    s.stream = $("#choices_stream").prop("checked");
     s.injectWorldInfo = $("#choices_inject_world_info").prop("checked");
     s.injectWIOutlets = $("#choices_inject_wi_outlets").prop("checked");
     s.includeCharInfo = $("#choices_include_char_info").prop("checked");
@@ -161,6 +173,7 @@ export function saveSettings() {
     s.regenDelay = parseInt($("#choices_regen_delay").val(), 10);
     if (isNaN(s.regenDelay) || s.regenDelay < 0) s.regenDelay = 2000;
     s.continuePrompt = $("#choices_continue_prompt").val() ?? s.continuePrompt;
+    s.inputPrompt = $("#choices_input_prompt").val() ?? s.inputPrompt;
 
     // Options are read back from the editor rows
     const options = [];

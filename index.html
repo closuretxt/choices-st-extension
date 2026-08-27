@@ -35,6 +35,10 @@
                             <input type="checkbox" id="choices_legacy_api" />
                             <span>Legacy Connection Profile</span>
                         </label>
+                        <label class="checkbox_label" title="Request with streaming and load each option into the menu as the response arrives">
+                            <input type="checkbox" id="choices_stream" />
+                            <span>Streaming</span>
+                        </label>
                         <label class="checkbox_label" title="Print verbose logs to console for debugging">
                             <input type="checkbox" id="choices_debug_mode" />
                             <span>Debug Mode</span>
@@ -100,6 +104,12 @@
                         <textarea id="choices_continue_prompt" class="text_pole" rows="12"></textarea>
                         <div class="flex-container" style="margin-top: 5px;">
                             <button id="choices_restore_prompt" class="menu_button flex1" title="Restore the default continue prompt"><span><i class="fa-solid fa-clock-rotate-left"></i> Restore Default Prompt</span></button>
+                        </div>
+
+                        <div class="choices-drawer-hint" style="margin-top: 12px;">Input Message — sent as the user message next to the continue prompt. {{input}} resolves to what's typed in the input bar, or a placeholder when it's empty.</div>
+                        <textarea id="choices_input_prompt" class="text_pole" rows="6"></textarea>
+                        <div class="flex-container" style="margin-top: 5px;">
+                            <button id="choices_restore_input_prompt" class="menu_button flex1" title="Restore the default input message"><span><i class="fa-solid fa-clock-rotate-left"></i> Restore Default Input Message</span></button>
                         </div>
                     </div>
                 </div>

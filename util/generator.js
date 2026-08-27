@@ -1,6 +1,7 @@
 // Sends the suggestion request to the configured (separate) LLM and parses the response.
 import { extension_settings, getContext } from "../../../../extensions.js";
 import { generateRaw } from "../../../../../script.js";
+import { defaultInputPrompt } from "../settings/defaultOptions.js";
 import { extensionName, logDebug } from "../index.js";
 import { swapProfile } from "./profileSwapper.js";
 import { applyChoicesMacros, collectContextParts } from "./contextBuilder.js";
@@ -14,7 +15,8 @@ export function cancelPendingChoices() {
 
 // Main entry: builds the prompts, asks the LLM, returns an array of suggestion strings.
 // inputText is optional; when omitted it is read from the input bar draft.
-export async function generateChoices(inputText = null) {
+// onChunk (optional) is called with the parsed suggestion list on every stream chunk.
+export async function generateChoices(inputText = null, onChunk = null) {
     const st = getContext();
     const settings = extension_settings[extensionName];
 
@@ -33,11 +35,10 @@ export async function generateChoices(inputText = null) {
     const parts = await collectContextParts(inputText, enabledOptions);
     const systemPrompt = applyChoicesMacros(settings.continuePrompt, parts);
 
-    // The draft in the input bar is the main focus: expand it, or assume the path if empty.
-    const draftBlock = inputText.trim()
-        ? inputText.trim()
-        : "(empty - assume what the user most likely wants to do next)";
-    const userPrompt = `<input_bar_draft>\n${draftBlock}\n</input_bar_draft>\n\nGenerate the suggestions now.`;
+    // The user message is a customizable template (settings -> Continue Prompt drawer).
+    // {{input}} resolves to the draft, or the placeholder when the input bar is empty.
+    const inputPromptTemplate = settings.inputPrompt || defaultInputPrompt;
+    const userPrompt = applyChoicesMacros(inputPromptTemplate, parts);
 
     const messages = [
         { role: "system", content: systemPrompt },
@@ -49,7 +50,15 @@ export async function generateChoices(inputText = null) {
 
     let result;
     try {
-        result = await sendRequest(st, settings, messages);
+        const streaming = settings.stream !== false && typeof onChunk === "function";
+        const handleChunk = streaming
+            ? (fullText) => {
+                // Superseded mid-stream (menu closed / regenerated): stop pushing updates.
+                if (myId !== _requestId) return;
+                if (typeof onChunk === "function") onChunk(parseChoicesResponse(fullText));
+            }
+            : null;
+        result = await sendRequest(st, settings, messages, handleChunk);
     } catch (e) {
         console.error("Choices: suggestion request failed:", e);
         throw e;
@@ -69,7 +78,8 @@ export async function generateChoices(inputText = null) {
 }
 
 // ROUTING: connection profile first, legacy swap if enabled, generateRaw as last fallback.
-async function sendRequest(st, settings, messages) {
+// onChunk (optional) receives the accumulated response text on every stream chunk.
+async function sendRequest(st, settings, messages, onChunk = null) {
     const profiles = st?.extensionSettings?.connectionManager?.profiles || [];
     const profile = profiles.find(p => p.id === settings.connection) || profiles.find(p => p.name === settings.connection);
     // Empty or missing selection falls back to the currently active profile
@@ -77,7 +87,7 @@ async function sendRequest(st, settings, messages) {
     // profile id to sendRequest fails on most setups).
     const selectedProfileId = st?.extensionSettings?.connectionManager?.selectedProfile || "";
     const profileId = profile ? profile.id : selectedProfileId;
-    logDebug(`Choices: using connection profile '${profile ? profile.name : "<current>"}' (id: ${profileId || "none"})`);
+    logDebug(`Choices: using connection profile '${profile ? profile.name : "<current>"}' (id: ${profileId || "none"}), stream=${!!onChunk}`);
 
     // Legacy API: swap to the target profile, use the current connection, then swap back.
     if (settings.legacy_api && profile) {
@@ -91,7 +101,7 @@ async function sendRequest(st, settings, messages) {
             if (!swapped) {
                 logDebug("Legacy mode: profile swap did not succeed, using the current connection.");
             }
-            return await requestViaConnectionManager("", messages);
+            return await requestViaConnectionManager("", messages, onChunk);
         } finally {
             if (swapped && selectedName) {
                 await swapProfile(selectedName, targetName);
@@ -100,15 +110,15 @@ async function sendRequest(st, settings, messages) {
     }
 
     if (st.ConnectionManagerRequestService?.sendRequest) {
-        return await requestViaConnectionManager(profileId, messages);
+        return await requestViaConnectionManager(profileId, messages, onChunk);
     }
 
-    // No connection manager available: fall back to a raw generation on the current API.
+    // No connection manager available: fall back to a raw generation on the current API (no streaming).
     logDebug("ConnectionManagerRequestService unavailable, falling back to generateRaw.");
     return await requestViaGenerateRaw(messages);
 }
 
-async function requestViaConnectionManager(profileId, messages) {
+async function requestViaConnectionManager(profileId, messages, onChunk = null) {
     const st = getContext();
     if (!st.ConnectionManagerRequestService?.sendRequest) {
         throw new Error("ConnectionManagerRequestService.sendRequest is unavailable.");
@@ -118,7 +128,7 @@ async function requestViaConnectionManager(profileId, messages) {
         profileId,
         messages,
         undefined,
-        { stream: false }
+        { stream: !!onChunk }
     );
 
     if (typeof createGenerator === "function") {
@@ -126,6 +136,7 @@ async function requestViaConnectionManager(profileId, messages) {
         for await (const chunk of createGenerator()) {
             if (chunk && chunk.text !== undefined) {
                 result = chunk.text;
+                if (onChunk) onChunk(result);
             }
         }
         return result;

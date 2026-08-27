@@ -69,8 +69,9 @@ jQuery(async () => {
     // Sparkle button in the input bar toggles the popup
     inputButton.init(() => choicesPopup.toggle());
 
-    // Popup asks the generator for a fresh batch of suggestions
-    choicesPopup.init(() => generateChoices());
+    // Popup asks the generator for a fresh batch of suggestions.
+    // When streaming is enabled, onChunk receives parsed options as they arrive.
+    choicesPopup.init((onChunk) => generateChoices(undefined, onChunk));
 
     initSlashCommands();
 

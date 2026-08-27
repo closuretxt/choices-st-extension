@@ -45,7 +45,21 @@ export const defaultOptions = [
 ];
 
 // ------------------------------------------------------------
-// 2. Continue prompt
+// 2. Input bar draft message
+// ------------------------------------------------------------
+// The user message sent to the LLM alongside the continue prompt.
+// {{input}} -> the current draft from the input bar, or the placeholder
+// below when the input bar is empty. Fully editable in the settings page.
+export const defaultInputPlaceholder = "(empty - assume what the user most likely wants to do next)";
+
+export const defaultInputPrompt = `<input_bar_draft>
+{{input}}
+</input_bar_draft>
+
+Generate the suggestions now.`;
+
+// ------------------------------------------------------------
+// 3. Continue prompt
 // ------------------------------------------------------------
 // Available macros:
 //   {{user}} {{char}}    -> standard ST macros (resolved via substituteParams)
@@ -55,7 +69,7 @@ export const defaultOptions = [
 //   {{worldinfo}}        -> active World Info entries (can be disabled in settings)
 //   {{wi-outlets}}       -> WI outlet entries as <outlet> blocks (can be disabled in settings)
 //   {{imminentcontext}}  -> the last N chat messages
-//   {{input}}            -> the current draft in the input bar (may be empty)
+//   {{input}}            -> the current draft in the input bar (falls back to defaultInputPlaceholder when empty)
 //   {{optionFocus}}      -> the injected list of enabled option quirks
 //   {{wordLimit}}        -> soft word limit per suggestion (guidance only, not enforced in code)
 export const defaultContinuePrompt = `You're the idea engine for {{user}} (the user's character) in an ongoing roleplay. Read the scene below and come up with what {{user}} could do or say next.
