@@ -256,10 +256,11 @@ export class ChoicesPopup {
         this._programmaticSet = false;
         ta.trigger("focus");
 
-        // After the insert, regenerate a fresh batch once the input has been idle for ~2s.
-        // Don't clear _lastGeneratedInput here: requestNew()'s equality check decides —
-        // if the insert somehow didn't change anything, nothing is rerolled.
-        this.scheduleRegen(this.settings.regenDelay ?? 2000);
+        // No auto-reroll on selection: the inserted text IS the new input, so keep
+        // the current batch until the user types something or hits regenerate.
+        // Also cancel any pending idle-regen timer (e.g. from recent typing).
+        clearTimeout(this._regenTimer);
+        this._regenTimer = null;
     }
 }
 
