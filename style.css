@@ -3,12 +3,93 @@
     width: 100%;
 }
 
+/* Field rows (label + input) */
+.choices_settings_content .choices-field {
+    margin-top: 8px;
+    gap: 8px;
+}
+
+.choices_settings_content .choices-field-label {
+    min-width: 150px;
+    opacity: 0.9;
+}
+
+.choices_settings_content .choices-field-label .fa-solid {
+    opacity: 0.6;
+    margin-right: 4px;
+}
+
+/* Sub-drawers (Advanced / Injections / Prompt / Options) */
+.choices_settings_content .choices-subdrawer {
+    margin-top: 8px;
+    border: 1px solid var(--SmartThemeBorderColor, #444);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.choices_settings_content .choices-subdrawer > .inline-drawer-header {
+    padding: 8px 10px;
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.choices_settings_content .choices-subdrawer > .inline-drawer-header b {
+    margin-left: 8px;
+    font-size: 0.95em;
+}
+
+.choices_settings_content .choices-drawer-icon {
+    opacity: 0.7;
+    font-size: 0.9em;
+}
+
+.choices_settings_content .choices-subdrawer > .inline-drawer-content {
+    padding: 8px 10px;
+}
+
+.choices-drawer-hint {
+    font-size: 0.8em;
+    opacity: 0.65;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.choices-title-icon {
+    color: #a06be0;
+    margin-right: 6px;
+}
+
+#choices_continue_prompt {
+    width: 100%;
+    resize: vertical;
+    font-family: var(--monospaceFont, monospace);
+    font-size: 0.85em;
+    line-height: 1.45;
+}
+
+/* Option editor items */
 #choices_option_list .choices-option-item {
     background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 5px;
+    border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.1));
+    border-radius: 8px;
     padding: 10px;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    transition: border-color 0.15s;
+}
+
+#choices_option_list .choices-option-item:hover {
+    border-color: var(--SmartThemeQuoteColor, #a06be0);
+}
+
+#choices_option_list .choices-option-item .choice-opt-focus {
+    width: 100%;
+    resize: vertical;
+    font-size: 0.9em;
+}
+
+#choices_option_list .choices-option-item .choice-opt-remove {
+    padding: 4px 8px;
 }
 
 /* ===== Input bar button ===== */
@@ -64,14 +145,27 @@
     gap: 10px;
     padding: 10px 14px;
     border-bottom: 1px solid var(--SmartThemeBorderColor, #444);
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.25);
     font-weight: 700;
     color: var(--SmartThemeBodyColor, #eee);
     flex-shrink: 0;
+    position: relative;
+}
+
+/* Accent line under the header */
+#choices_popup_header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #a06be0, #4aa3e0);
+    opacity: 0.55;
 }
 
 #choices_popup_header .fa-wand-magic-sparkles {
-    color: #4aa3e0;
+    color: #a06be0;
 }
 
 #choices_popup_title {
@@ -105,15 +199,32 @@
     border-radius: 8px;
     cursor: pointer;
     color: var(--SmartThemeBodyColor, #ddd);
-    transition: background 0.12s;
+    transition: background 0.12s, transform 0.12s;
 }
 
 .choices-option:hover {
     background: rgba(255, 255, 255, 0.08);
+    transform: translateX(2px);
 }
 
 .choices-option + .choices-option {
     border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.choices-option-num {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75em;
+    font-weight: 700;
+    color: var(--SmartThemeBodyColor, #ccc);
+    background: rgba(160, 107, 224, 0.18);
+    border: 1px solid rgba(160, 107, 224, 0.35);
+    opacity: 0.85;
 }
 
 .choices-option-text {
@@ -125,13 +236,15 @@
 }
 
 .choices-option-go {
-    opacity: 0.35;
+    opacity: 0;
     flex-shrink: 0;
-    transition: opacity 0.12s;
+    color: #a06be0;
+    transition: opacity 0.15s, transform 0.15s;
 }
 
 .choices-option:hover .choices-option-go {
     opacity: 0.9;
+    transform: scale(1.1);
 }
 
 .choices-loading,

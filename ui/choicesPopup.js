@@ -163,10 +163,11 @@ export class ChoicesPopup {
             list.append(`<div class="choices-empty">No suggestions returned.</div>`);
             return;
         }
-        results.forEach((text) => {
+        results.forEach((text, idx) => {
             const item = $(`<div class="choices-option"></div>`);
+            item.append($(`<div class="choices-option-num">${idx + 1}</div>`));
             item.append($(`<div class="choices-option-text"></div>`).text(text));
-            item.append($(`<i class="fa-solid fa-chevron-right choices-option-go" title="Add to input"></i>`));
+            item.append($(`<i class="fa-solid fa-circle-plus choices-option-go" title="Add to input"></i>`));
             item.on("click", () => this.applyOption(text));
             list.append(item);
         });
