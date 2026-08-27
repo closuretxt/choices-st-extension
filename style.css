@@ -56,7 +56,7 @@
 }
 
 .choices-title-icon {
-    color: #a06be0;
+    color: var(--SmartThemeQuoteColor, #4aa3e0);
     margin-right: 6px;
 }
 
@@ -79,7 +79,7 @@
 }
 
 #choices_option_list .choices-option-item:hover {
-    border-color: var(--SmartThemeQuoteColor, #a06be0);
+    border-color: var(--SmartThemeQuoteColor, #4aa3e0);
 }
 
 #choices_option_list .choices-option-item .choice-opt-focus {
@@ -115,8 +115,8 @@
 }
 
 #choices_input_button.active {
-    color: #a06be0;
-    border-color: #a06be0;
+    color: var(--SmartThemeQuoteColor, #4aa3e0);
+    border-color: var(--SmartThemeQuoteColor, #4aa3e0);
 }
 
 /* ===== Suggestions popup ===== */
@@ -160,12 +160,12 @@
     bottom: -1px;
     width: 100%;
     height: 2px;
-    background: linear-gradient(90deg, #a06be0, #4aa3e0);
+    background: linear-gradient(90deg, var(--SmartThemeQuoteColor, #4aa3e0), rgba(255, 255, 255, 0.45));
     opacity: 0.55;
 }
 
 #choices_popup_header .fa-lightbulb {
-    color: #a06be0;
+    color: var(--SmartThemeQuoteColor, #4aa3e0);
 }
 
 #choices_popup_title {
@@ -222,8 +222,8 @@
     font-size: 0.75em;
     font-weight: 700;
     color: var(--SmartThemeBodyColor, #ccc);
-    background: rgba(160, 107, 224, 0.18);
-    border: 1px solid rgba(160, 107, 224, 0.35);
+    background: rgba(74, 163, 224, 0.18);
+    border: 1px solid rgba(74, 163, 224, 0.35);
     opacity: 0.85;
 }
 
@@ -238,7 +238,7 @@
 .choices-option-go {
     opacity: 0;
     flex-shrink: 0;
-    color: #a06be0;
+    color: var(--SmartThemeQuoteColor, #4aa3e0);
     transition: opacity 0.15s, transform 0.15s;
 }
 
